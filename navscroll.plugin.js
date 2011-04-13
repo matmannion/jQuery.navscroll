@@ -6,7 +6,7 @@
   var isScrollable = function(el, offset) {
     offset = offset || 0;
     var last = $(el).find('li:last-child');
-
+    
     var isScrollable = (last.position().left + last.width()) > ($(el).width() + offset);
     return isScrollable;
   };
@@ -22,36 +22,44 @@
     this.find('.navscroll').remove();
 
     return this.filter(function() { return isScrollable(this); }).each(function() {
-      var width = $(this).width();
+   
+      var list = this;
+      var $list = $(this);
+      var width = $list.width();
+      
+      // move offset to a variable so we can track its value easily
+      var marginLeft = 0;
 
       var prev = $('<a/>').attr({ href: '#' }).addClass('navscroll').addClass('prev').html('&laquo;').hide();
       var next = $('<a/>').attr({ href: '#' }).addClass('navscroll').addClass('next').html('&raquo;');
 
-      next.click($.proxy(function() {
+      next.click(function() {
         prev.show();      
-        if (!isScrollable(this, width)) {
+        if (!isScrollable(list, width)) {
           next.hide();
         }
       
-        $(this).animate({
-          marginLeft: '-=' + width
+        marginLeft -= width;
+        $list.animate({
+          marginLeft: marginLeft
         });
 
         return false;
-      }, this));
+      });
 
-      prev.click($.proxy(function() {
+      prev.click(function() {
         next.show();
-        if (parseInt($(this).css('margin-left')) + width >= 0) {
+        if (parseInt($list.css('margin-left')) + width >= 0) {
           prev.hide();
         }
 
-        $(this).animate({
-          marginLeft: '+=' + width
+        marginLeft += width;
+        $list.animate({
+          marginLeft: marginLeft
         });
     
         return false;
-      }, this));
+      });
 
       $(this).before(prev).after(next);
     }); 
